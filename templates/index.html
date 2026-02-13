@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Song Key Finder Pro</title>
+  <style>
+    body {
+      background: #0b0b0b;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    .box {
+      max-width: 600px;
+      margin: auto;
+      background: #161616;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+    }
+    input {
+      margin-top: 15px;
+      padding: 12px;
+      width: 80%;
+      border-radius: 10px;
+      border: none;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background: #00c3ff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00a0d6;
+    }
+    #result {
+      margin-top: 25px;
+      font-size: 18px;
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h1>🎶 Song Key Finder Pro</h1>
+  <p>Upload your song and detect key accurately.</p>
+
+  <input type="file" id="audioFile" accept="audio/*">
+  <br>
+  <button onclick="uploadSong()">Detect Key</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+async function uploadSong() {
+  const fileInput = document.getElementById("audioFile");
+  const resultDiv = document.getElementById("result");
+
+  if (!fileInput.files.length) {
+    resultDiv.innerText = "❌ Please upload an audio file first.";
+    return;
+  }
+
+  resultDiv.innerText = "⏳ Uploading & analyzing... please wait.";
+
+  const formData = new FormData();
+  formData.append("file", fileInput.files[0]);
+
+  try {
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+      resultDiv.innerText = "❌ Error: " + data.error;
+      return;
+    }
+
+    resultDiv.innerText =
+      `✅ Detected Key: ${data.key}\n` +
+      `🎡 Camelot: ${data.camelot}\n` +
+      `📊 Confidence: ${data.confidence}%\n\n` +
+      `🔥 Top Notes: ${data.top_notes}`;
+
+  } catch (err) {
+    resultDiv.innerText = "❌ Failed. Check server is running.";
+  }
+}
+</script>
+
+</body>
+</html>
